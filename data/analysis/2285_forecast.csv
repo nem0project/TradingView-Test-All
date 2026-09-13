@@ -2,7 +2,7 @@ phase,session_offset,day_in_cycle,forecast_probability,expected_relative_volume,
 future_forecast,1,1,0.14624273911162589,1.1187563040950388,طبيعي,High
 future_forecast,2,2,0.1757330230437973,0.7426315760169268,طبيعي,Medium
 future_forecast,3,3,0.10757745315768441,1.3605836577458088,طبيعي,Medium
-future_forecast,4,4,0.13429680188905443,0.9265147379226548,طبيعي,Medium
+future_forecast,4,4,0.1342968018890544,0.9265147379226548,طبيعي,Medium
 future_forecast,5,5,0.11497211854117255,0.7268398233855362,طبيعي,Medium
 future_forecast,6,6,0.09960450074161584,1.299754878175652,طبيعي,Low
 future_forecast,7,7,0.09302991082015243,0.8121390854632392,طبيعي,Low
