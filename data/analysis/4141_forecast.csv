@@ -1,0 +1,11 @@
+phase,session_offset,day_in_cycle,forecast_probability,expected_relative_volume,high_liquidity_probability_label,confidence_level
+future_forecast,1,1,0.024792327707966952,1.3439462993755122,طبيعي,High
+future_forecast,2,2,0.031964583782443906,2.1081854713827752,طبيعي,Medium
+future_forecast,3,3,0.040002193447094395,1.3123354959786129,طبيعي,Medium
+future_forecast,4,4,0.0509007042807434,0.873756828266645,طبيعي,Medium
+future_forecast,5,5,0.06303682530419584,0.7862059302894422,طبيعي,Medium
+future_forecast,6,6,0.08259938216339935,0.8509435125239196,طبيعي,Low
+future_forecast,7,7,0.10789357514629859,0.8321051285886093,طبيعي,Low
+future_forecast,8,8,0.12868575699207108,1.0794308072186618,طبيعي,Low
+future_forecast,9,9,0.1827806513415382,0.8205080686558371,طبيعي,Low
+future_forecast,10,10,0.238700137631849,0.7159270815123068,طبيعي,Low

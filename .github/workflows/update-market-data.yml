@@ -1,0 +1,42 @@
+name: Update Market Data
+
+# يشغّل update_all.py يوميًا لكل الأسهم في data/symbols.csv (نفس منطق التحليل المحلي
+# تمامًا)، ثم يرفع نتائج data/ المحدَّثة إلى الفرع الرئيسي — مما يجعل Streamlit Community
+# Cloud يعيد نشر اللوحة تلقائيًا ببيانات جديدة دون أي تدخل يدوي أو اعتماد على أي جهاز محلي.
+#
+# لتغيير وقت التشغيل: عدّل قيمة cron أدناه (بتوقيت UTC). الرياض = UTC+3 طوال العام.
+
+on:
+  schedule:
+    - cron: "0 13 * * 0-4"   # 13:00 UTC = 16:00 بتوقيت الرياض، أحد-خميس (أيام تداول تاسي)
+  workflow_dispatch: {}       # يسمح بتشغيل يدوي فوري من تبويب Actions في GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  update-market-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run daily update for all symbols
+        run: python update_all.py
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/raw data/processed data/analysis
+          git diff --cached --quiet || git commit -m "chore: automated daily market data update [skip ci]"
+          git push

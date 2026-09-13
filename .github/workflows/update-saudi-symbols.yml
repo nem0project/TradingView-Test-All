@@ -1,0 +1,39 @@
+name: Update Saudi Symbols List
+
+# يحدّث data/symbols.csv تلقائيًا يوميًا من TradingView (بدون أي مفتاح API) قبل تحديث
+# بيانات السوق بساعة، حتى تشمل عملية analyze أي رمز مُدرَج جديدًا في نفس اليوم.
+
+on:
+  schedule:
+    - cron: "0 12 * * 0-4"   # 12:00 UTC = 15:00 بتوقيت الرياض (UTC+3)، أحد-خميس (أيام تداول تاسي)
+  workflow_dispatch: {}       # يسمح بتشغيل يدوي من تبويب Actions في GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  update-symbols:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch latest TASI symbols list
+        run: python scripts/update_symbols.py
+
+      - name: Commit and push symbols.csv if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/symbols.csv
+          git diff --cached --quiet || git commit -m "chore: auto-update TASI symbols list [skip ci]"
+          git push
