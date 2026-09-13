@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 from liquidity_cycle_analysis import (  # noqa: F401
-    DAYS_PER_CYCLE, LEVELS, CANDIDATE_PERIODS, VOL_WINDOW,
+    DAYS_PER_CYCLE, LEVELS, CANDIDATE_PERIODS,
     build_liquidity_features, day_in_cycle_table, test_day_in_cycle_uniformity,
     per_cycle_top_days, highest_day_distribution_test, gap_analysis, periodicity_analysis,
 )
@@ -137,10 +137,13 @@ def analyze_symbol(raw_df, forecast_horizon=DEFAULT_FORECAST_HORIZON):
         "liquidity_pattern_strength": pattern["liquidity_pattern_strength"],
         "dominant_position": pattern["dominant_position"],
 
-        # --- الطبقة الجديدة: زخم السيولة الفعلي (آخر 3 جلسات) + التوقيت — بدون أي مؤشر سعري ---
+        # --- الطبقة الجديدة: زخم السيولة الفعلي (نافذة 10 جلسات: 3 حالية + 7 مرجعية) + التوقيت — بدون أي مؤشر سعري ---
         "average_last_3_volume": liquidity_change["average_last_3_volume"],
         "average_volume_reference": liquidity_change["average_volume_reference"],
         "liquidity_change_percent": liquidity_change["liquidity_change_percent"],
+        "liquidity_window_sessions_used": liquidity_change["liquidity_window_sessions_used"],
+        "liquidity_current_sessions_used": liquidity_change["liquidity_current_sessions_used"],
+        "liquidity_reference_sessions_used": liquidity_change["liquidity_reference_sessions_used"],
         "liquidity_score": liquidity_score,
         "timing_score": timing_score,
         "final_opportunity_score": final_score,
@@ -296,7 +299,8 @@ def add_trading_sessions(start_date, n_sessions):
 # ============================================================
 # أفضل 3 مواعيد مستقبلية لارتفاع السيولة (Repeat Strength + Liquidity Lift)
 # رياضي/إحصائي بحت — بدون AI/ML — ويعتمد فقط على relative_volume الموجود أصلًا في النظام
-# (نفس المقارنة المرجعية المستخدمة في طبقة liquidity_score: volume مقابل متوسطه المتحرك لـ VOL_WINDOW جلسة).
+# (volume مقابل متوسطه المتحرك لـ VOL_WINDOW=20 جلسة — منفصل تمامًا عن نافذة الـ10 جلسات
+# (3 حالية + 7 مرجعية) المستخدمة في طبقة Liquidity Score أدناه؛ لكل منهما غرض مختلف).
 # ============================================================
 
 MIN_CYCLES_FOR_FUTURE_DATES = MIN_COMPLETED_CYCLES  # نفس الحد الأدنى المستخدم أصلًا في analyze_liquidity_pattern
@@ -504,19 +508,35 @@ def classify_opportunity_score(score):
 # الطبقة الجديدة: زخم السيولة الفعلي (آخر 3 جلسات) + التوقيت الزمني — بدون أي مؤشر سعري
 # ============================================================
 
+LIQUIDITY_WINDOW_TOTAL = 10       # إجمالي نافذة تحليل السيولة (جلسات)
+LIQUIDITY_CURRENT_SESSIONS = 3    # "السيولة الحالية" = أحدث 3 جلسات
+LIQUIDITY_REFERENCE_SESSIONS = LIQUIDITY_WINDOW_TOTAL - LIQUIDITY_CURRENT_SESSIONS  # = 7
+
+
 def calculate_liquidity_change(df):
     """
-    average_last_3_volume = متوسط Volume لآخر 3 جلسات فقط (لا سعر، لا نسبة تغير سعرية).
-    average_volume_reference = نفس المتوسط المرجعي المستخدم حاليًا في النظام
-    (نافذة VOL_WINDOW=20 المستخدمة أصلًا لحساب relative_volume في build_liquidity_features) — لم تتغير طريقة حسابه.
+    نافذة تحليل السيولة = 10 جلسات إجمالاً، مقسّمة صراحةً بدون أي تداخل بين المجموعتين:
+
+      current   = أحدث 3 جلسات                      -> "السيولة الحالية" (average_last_3_volume)
+      reference = الـ7 جلسات التي تسبق هذه الثلاث مباشرة -> "المتوسط المرجعي" (average_volume_reference)
+
+    لا تدخل أي من الجلسات الثلاث الحديثة في حساب المتوسط المرجعي إطلاقًا (لا rolling(20)
+    ولا rolling(7) على النافذة الكاملة — الفصل صريح بالفهرسة بعد ترتيب البيانات زمنيًا).
+    لا علاقة لهذا بـ VOL_WINDOW (المستخدم فقط لحساب relative_volume في تحليل دورات السيولة،
+    ولم يتغيّر).
     """
-    average_last_3_volume = float(df["volume"].tail(3).mean())
+    df_sorted = df.sort_values("date") if "date" in df.columns else df  # لا نفترض ترتيب الإدخال
+    latest_window = df_sorted["volume"].tail(LIQUIDITY_WINDOW_TOTAL)
+    n_available = len(latest_window)
 
-    reference_series = df["volume"].rolling(VOL_WINDOW).mean()
-    reference_val = reference_series.iloc[-1]
-    average_volume_reference = float(reference_val) if pd.notna(reference_val) else None
+    n_current = min(LIQUIDITY_CURRENT_SESSIONS, n_available)
+    current_volumes = latest_window.iloc[n_available - n_current:] if n_current else latest_window.iloc[0:0]
+    reference_volumes = latest_window.iloc[: max(0, n_available - n_current)]
 
-    if not average_volume_reference or average_volume_reference <= 0:
+    average_last_3_volume = float(current_volumes.mean()) if len(current_volumes) else None
+    average_volume_reference = float(reference_volumes.mean()) if len(reference_volumes) else None
+
+    if not average_last_3_volume or not average_volume_reference or average_volume_reference <= 0:
         liquidity_change_percent = 0.0
     else:
         liquidity_change_percent = ((average_last_3_volume / average_volume_reference) - 1) * 100
@@ -525,6 +545,9 @@ def calculate_liquidity_change(df):
         "average_last_3_volume": average_last_3_volume,
         "average_volume_reference": average_volume_reference,
         "liquidity_change_percent": liquidity_change_percent,
+        "liquidity_window_sessions_used": n_available,
+        "liquidity_current_sessions_used": len(current_volumes),
+        "liquidity_reference_sessions_used": len(reference_volumes),
     }
 
 

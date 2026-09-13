@@ -106,11 +106,24 @@ with st.expander("📐 تفاصيل حساب الفرصة (Final Opportunity Sco
     d3.markdown(f'<div class="metric-card">Final Opportunity Score<br><span class="val">{"—" if pd.isna(final_score) else f"{final_score:.1f}"}</span></div>', unsafe_allow_html=True)
     d4.markdown(f'<div class="metric-card">الموقع بالدورة<br><span class="val">D{int(row["current_cycle"])} / يوم {int(row["current_day_in_cycle"])}</span></div>', unsafe_allow_html=True)
 
+    st.markdown("**نافذة تحليل السيولة: 10 جلسات** — السيولة الحالية: متوسط آخر 3 جلسات · "
+                "المتوسط المرجعي: متوسط الجلسات الـ7 السابقة لها (بدون تداخل) · "
+                "مقارنة السيولة: آخر 3 جلسات مقابل الـ7 جلسات السابقة")
+
     e1, e2, e3, e4 = st.columns(4)
-    e1.markdown(f'<div class="metric-card">متوسط آخر 3 جلسات (Volume)<br><span class="val">{row.get("average_last_3_volume", float("nan")):,.0f}</span></div>', unsafe_allow_html=True)
-    e2.markdown(f'<div class="metric-card">السيولة المرجعية (20 جلسة)<br><span class="val">{row.get("average_volume_reference", float("nan")):,.0f}</span></div>', unsafe_allow_html=True)
+    n_current = row.get("liquidity_current_sessions_used", float("nan"))
+    n_reference = row.get("liquidity_reference_sessions_used", float("nan"))
+    n_window = row.get("liquidity_window_sessions_used", float("nan"))
+    current_label = "السيولة الحالية" if pd.isna(n_current) else f"السيولة الحالية (متوسط {int(n_current)} جلسات)"
+    reference_label = "المتوسط المرجعي" if pd.isna(n_reference) else f"المتوسط المرجعي (متوسط {int(n_reference)} جلسات سابقة)"
+    e1.markdown(f'<div class="metric-card">{current_label}<br><span class="val">{row.get("average_last_3_volume", float("nan")):,.0f}</span></div>', unsafe_allow_html=True)
+    e2.markdown(f'<div class="metric-card">{reference_label}<br><span class="val">{row.get("average_volume_reference", float("nan")):,.0f}</span></div>', unsafe_allow_html=True)
     e3.markdown(f'<div class="metric-card">السيولة اليومية (آخر جلسة)<br><span class="val">{row.get("current_liquidity", float("nan")):,.0f}</span></div>', unsafe_allow_html=True)
     e4.markdown(f'<div class="metric-card">متوسط السيولة (60 جلسة)<br><span class="val">{row.get("avg_liquidity_60", float("nan")):,.0f}</span></div>', unsafe_allow_html=True)
+    if not pd.isna(n_window):
+        st.caption(f"عدد الجلسات المستخدمة فعليًا في حساب تغيّر السيولة: {int(n_window)} من أصل 10 "
+                   f"({int(n_current) if not pd.isna(n_current) else '—'} حالية + "
+                   f"{int(n_reference) if not pd.isna(n_reference) else '—'} مرجعية).")
 
     f1, f2, f3, f4 = st.columns(4)
     exp_sessions = row.get("expected_sessions_to_liquidity", float("nan"))

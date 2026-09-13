@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     التشغيل اليومي التلقائي لـ update_all.py — يُستدعى من Windows Task Scheduler.
 

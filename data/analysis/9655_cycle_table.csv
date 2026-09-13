@@ -1,7 +1,7 @@
 DayInCycle,AvailableCycles,AverageRelativeVolume,MedianRelativeVolume,HighLiquidityCount_L1,ProbabilityHighLiquidity_L1,HighLiquidityCount_L2,ProbabilityHighLiquidity_L2,HighLiquidityCount_L3,ProbabilityHighLiquidity_L3
 1,1,0.2586922708082379,0.2586922708082379,0,0.0,0,0.0,0,0.0
 2,1,0.9828936924085726,0.9828936924085726,0,0.0,0,0.0,0,0.0
-3,0,,,0,0.0,0,0.0,0,0.0
+3,1,0.2722057665629335,0.2722057665629335,0,0.0,0,0.0,0,0.0
 4,0,,,0,0.0,0,0.0,0,0.0
 5,1,0.9469148456604353,0.9469148456604353,0,0.0,0,0.0,0,0.0
 6,1,0.35395125172847913,0.35395125172847913,0,0.0,0,0.0,0,0.0

@@ -112,10 +112,13 @@ def build_summary_row(symbol, name, result):
         "confidence_label": result["confidence_label"],
         "status_color": result["status_color"],
 
-        # --- الطبقة الجديدة: زخم السيولة الفعلي (آخر 3 جلسات) + التوقيت — بدون أي مؤشر سعري ---
+        # --- الطبقة الجديدة: زخم السيولة الفعلي (نافذة 10 جلسات: 3 حالية + 7 مرجعية) + التوقيت ---
         "average_last_3_volume": result["average_last_3_volume"],
         "average_volume_reference": result["average_volume_reference"],
         "liquidity_change_percent": result["liquidity_change_percent"],
+        "liquidity_window_sessions_used": result["liquidity_window_sessions_used"],
+        "liquidity_current_sessions_used": result["liquidity_current_sessions_used"],
+        "liquidity_reference_sessions_used": result["liquidity_reference_sessions_used"],
         "liquidity_score": result["liquidity_score"],
         "timing_score": result["timing_score"],
         "final_opportunity_score": result["final_opportunity_score"],
