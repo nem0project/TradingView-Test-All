@@ -4,4 +4,4 @@ Cycle,HighestLiquidityDay,SecondHighestDay,ThirdHighestDay,valid
 3,1.0,11.0,4.0,True
 4,13.0,2.0,3.0,True
 5,12.0,10.0,8.0,True
-6,8.0,7.0,1.0,True
+6,8.0,12.0,7.0,True
