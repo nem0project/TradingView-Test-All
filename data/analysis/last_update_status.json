@@ -1,9 +1,9 @@
 {
-  "started_at": "2026-11-16T22:46:30",
-  "finished_at": "2026-11-16T22:49:56",
-  "duration_seconds": 206.0,
-  "total_symbols": 388,
-  "succeeded_count": 388,
+  "started_at": "2026-11-17T21:33:46",
+  "finished_at": "2026-11-17T21:37:30",
+  "duration_seconds": 223.5,
+  "total_symbols": 390,
+  "succeeded_count": 390,
   "failed_count": 0,
   "succeeded_symbols": [
     "1010",
@@ -354,6 +354,7 @@
     "9603",
     "9604",
     "9605",
+    "9606",
     "9607",
     "9608",
     "9609",
@@ -393,6 +394,7 @@
     "9649",
     "9650",
     "9651",
+    "9653",
     "9655"
   ],
   "failed_symbols": [],
@@ -745,6 +747,7 @@
     "9603": "SUCCESS",
     "9604": "SUCCESS",
     "9605": "SUCCESS",
+    "9606": "SUCCESS",
     "9607": "SUCCESS",
     "9608": "SUCCESS",
     "9609": "SUCCESS",
@@ -784,6 +787,7 @@
     "9649": "SUCCESS",
     "9650": "SUCCESS",
     "9651": "SUCCESS",
+    "9653": "SUCCESS",
     "9655": "SUCCESS"
   },
   "overall_status": "success"
